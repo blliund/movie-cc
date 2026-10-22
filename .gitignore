@@ -1,0 +1,5 @@
+node_modules/
+.vercel
+posters.json
+fetch_posters.js
+*.log

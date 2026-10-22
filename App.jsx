@@ -1,0 +1,1017 @@
+import React, { useState, useMemo, useEffect } from "react";
+
+// 실제 공식 영화 포스터가 적용된 40편의 영화 데이터 (장르별 10편)
+export const INITIAL_MOVIES = [
+  // [액션] 10편
+  {
+    id: 1,
+    title: "존 윅 4",
+    englishTitle: "John Wick: Chapter 4",
+    genre: "액션",
+    year: 2023,
+    rating: 8.9,
+    runtime: "169분",
+    director: "채드 스타헬스키",
+    cast: "키아누 리브스, 견자단, 빌 스카스가드",
+    summary: "자유를 얻기 위해 최고 회의에 맞서는 전설적인 킬러 존 윅. 뉴욕, 오사카, 베를린, 파리를 넘나들며 펼쳐지는 숨 쉴 틈 없는 건푸와 스타일리시한 논스톱 액션의 결정판.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/d/d0/John_Wick_-_Chapter_4_promotional_poster.jpg",
+    tags: ["스타일리시", "총격전", "복수극", "카타르시스"],
+    recommendReason: "스트레스를 한 방에 날려버릴 압도적인 타격감과 액션 미학의 향연!"
+  },
+  {
+    id: 2,
+    title: "탑건: 매버릭",
+    englishTitle: "Top Gun: Maverick",
+    genre: "액션",
+    year: 2022,
+    rating: 9.2,
+    runtime: "130분",
+    director: "조셉 코신스키",
+    cast: "톰 크루즈, 마일즈 텔러, 제니퍼 코넬리",
+    summary: "최고의 파일럿으로 전설이 된 매버릭이 비밀 작전을 위해 모인 최정예 팀의 교관으로 부임한다. 불가능에 가까운 미션을 위해 펼치는 한계 초월 실전 비행 액션.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/1/13/Top_Gun_Maverick_Poster.jpg",
+    tags: ["톰크루즈", "전투기비행", "리얼액션", "전율"],
+    recommendReason: "실제 전투기를 타고 촬영한 압도적인 현장감과 심장을 뛰게 하는 벅찬 감동!"
+  },
+  {
+    id: 3,
+    title: "매드맥스: 분노의 도로",
+    englishTitle: "Mad Max: Fury Road",
+    genre: "액션",
+    year: 2015,
+    rating: 9.0,
+    runtime: "120분",
+    director: "조지 밀러",
+    cast: "톰 하디, 샤를리즈 테론, 니콜라스 홀트",
+    summary: "물과 기름을 차지한 독재자 임모탄 조의 폭정에 맞서 인류의 생존을 건 질주가 시작된다. 거친 사막을 배경으로 펼쳐지는 광기 어린 무한 질주 카체이싱 액션.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/6/6e/Mad_Max_Fury_Road.jpg",
+    tags: ["포스트아포칼립스", "카체이싱", "샤를리즈테론", "아드레날린"],
+    recommendReason: "2시간 내내 스크린을 찢고 나오는 순수 액션의 폭풍!"
+  },
+  {
+    id: 4,
+    title: "다크 나이트",
+    englishTitle: "The Dark Knight",
+    genre: "액션",
+    year: 2008,
+    rating: 9.4,
+    runtime: "152분",
+    director: "크리스토퍼 놀란",
+    cast: "크리스찬 베일, 히스 레저, 아론 에크하트",
+    summary: "정의의 수호자 배트맨과 혼돈의 화신 조커의 치열한 대결. 영웅의 고뇌와 인간의 본성을 가장 깊이 있게 탐구한 슈퍼히어로 장르의 역사적 불후의 명작.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/1/1c/The_Dark_Knight_%282008_film%29.jpg",
+    tags: ["조커", "배트맨", "놀란감독", "인생명작"],
+    recommendReason: "히스 레저의 전설적인 조커 연기와 긴장감 넘치는 지능형 대결!"
+  },
+  {
+    id: 5,
+    title: "미션 임파서블: 데드 레코닝",
+    englishTitle: "Mission: Impossible - Dead Reckoning",
+    genre: "액션",
+    year: 2023,
+    rating: 8.8,
+    runtime: "163분",
+    director: "크리스토퍼 맥쿼리",
+    cast: "톰 크루즈, 헤일리 앳웰, 빙 라메스",
+    summary: "인류를 위협하는 전지전능한 AI '엔티티'를 추적하는 에단 헌트와 IMF 팀. 절벽 오토바이 다이빙과 기차 격투 등 한계를 모르는 스턴트의 향연.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/e/ed/Mission-_Impossible_%E2%80%93_Dead_Reckoning_Part_One_poster.jpg",
+    tags: ["첩보물", "리얼스턴트", "에단헌트", "스릴"],
+    recommendReason: "보는 내내 손에 땀을 쥐게 만드는 톰 크루즈의 극한 스턴트!"
+  },
+  {
+    id: 6,
+    title: "글래디에이터",
+    englishTitle: "Gladiator",
+    genre: "액션",
+    year: 2000,
+    rating: 9.1,
+    runtime: "155분",
+    director: "리들리 스콧",
+    cast: "러셀 크로우, 호아킨 피닉스, 코니 닐슨",
+    summary: "황제의 신임을 받던 로마 장군 막시무스가 배신당해 노예 검투사로 전락한 뒤, 콜로세움에서 황제에게 복수하기 위해 벌이는 장엄한 대서사시.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/f/fb/Gladiator_%282000_film_poster%29.png",
+    tags: ["로마제국", "검투사", "복수", "웅장함"],
+    recommendReason: "가슴을 울리는 막시무스의 투지와 장엄한 콜로세움 전투 씬!"
+  },
+  {
+    id: 7,
+    title: "어벤져스: 엔드게임",
+    englishTitle: "Avengers: Endgame",
+    genre: "액션",
+    year: 2019,
+    rating: 9.3,
+    runtime: "181분",
+    director: "안소니 루소, 조 루소",
+    cast: "로버트 다우니 주니어, 크리스 에반스, 스칼렛 요한슨",
+    summary: "타노스의 핑거스냅 이후 지구의 절반이 사라진 세상. 살아남은 어벤져스 멤버들이 모든 것을 되돌리기 위해 시공간을 넘나드는 마지막 승부를 펼친다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/0/0d/Avengers_Endgame_poster.jpg",
+    tags: ["마블", "타노스", "어벤져스어셈블", "대미"],
+    recommendReason: "10년 마블 시네마틱 유니버스의 모든 감동이 집대성된 클라이맥스!"
+  },
+  {
+    id: 8,
+    title: "범죄도시 4",
+    englishTitle: "The Roundup: Punishment",
+    genre: "액션",
+    year: 2024,
+    rating: 8.5,
+    runtime: "109분",
+    director: "허명행",
+    cast: "마동석, 김무열, 박지환, 이동휘",
+    summary: "괴물형사 마석도가 대규모 온라인 불법 도박 조직을 소탕하기 위해 특수부대 출신 빌런 백창기와 IT 천재 장동철을 상대로 펼치는 통쾌한 핵펀치 범죄 소탕 작전.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/a/ae/The_Roundup_Punishment_film_poster.jpg",
+    tags: ["마동석", "핵펀치", "사이다액션", "통쾌함"],
+    recommendReason: "묵은 스트레스를 날려주는 마동석표 화끈한 타격감과 유머!"
+  },
+  {
+    id: 9,
+    title: "아저씨",
+    englishTitle: "The Man from Nowhere",
+    genre: "액션",
+    year: 2010,
+    rating: 8.9,
+    runtime: "119분",
+    director: "이정범",
+    cast: "원빈, 김새론, 김성오, 김희원",
+    summary: "세상을 등지고 외롭게 살아가던 전직 특수요원 태식이 유일하게 마음을 열었던 옆집 소녀 소미를 구하기 위해 세상 밖으로 나와 거대한 범죄조직을 추적한다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/d/d6/The_Man_from_Nowhere_poster.jpg",
+    tags: ["한국액션명작", "원빈", "감성액션", "단검액션"],
+    recommendReason: "한국 액션 영화의 새로운 기준을 제시한 세련되고 처절한 격투 명장면!"
+  },
+  {
+    id: 10,
+    title: "분노의 질주: 더 얼티메이트",
+    englishTitle: "F9: The Fast Saga",
+    genre: "액션",
+    year: 2021,
+    rating: 8.3,
+    runtime: "142분",
+    director: "저스틴 린",
+    cast: "빈 디젤, 존 시나, 성강, 미셸 로드리게즈",
+    summary: "도미닉 토레토가 동생 제이콥과 결탁한 사이퍼의 음모에 맞서 전 세계를 누비며 펼치는 상상 초월 슈퍼카 논스톱 액션 블록버스터.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/2/2b/F9_film_poster.jpg",
+    tags: ["분노의질주", "슈퍼카", "스피드", "패밀리"],
+    recommendReason: "우주까지 돌파하는 기상천외한 슈퍼카 액션과 빠른 스피드감!"
+  },
+
+  // [코미디] 10편
+  {
+    id: 11,
+    title: "극한직업",
+    englishTitle: "Extreme Job",
+    genre: "코미디",
+    year: 2019,
+    rating: 8.7,
+    runtime: "111분",
+    director: "이병헌",
+    cast: "류승룡, 이하늬, 진선규, 이동휘, 공명",
+    summary: "해체 위기의 마약반 5인방이 범죄조직 소탕을 위해 아지트 앞 치킨집을 위장 창업한다. 그러나 비법 소스로 대박 맛집으로 등극하며 수사는 엉뚱한 방향으로 번진다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/d/d7/Extreme_Job_poster.jpg",
+    tags: ["치킨맛집", "천만영화", "폭소보장", "팀워크"],
+    recommendReason: "웃음이 고픈 날, 1분마다 터지는 쫀득한 말맛과 환상적인 케미!"
+  },
+  {
+    id: 12,
+    title: "에브리씽 에브리웨어 올 앳 원스",
+    englishTitle: "Everything Everywhere All at Once",
+    genre: "코미디",
+    year: 2022,
+    rating: 8.9,
+    runtime: "139분",
+    director: "다니엘 콴, 다니엘 쉐이너트",
+    cast: "양자경, 스테파니 수, 키 호이 콴",
+    summary: "세탁소를 운영하며 고단한 삶을 살던 에블린. 남편의 몸을 빌려 나타난 존재를 통해 다중 우주의 자신을 만나며 세상을 구하고 가족의 소중함을 되찾는다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/1/1e/Everything_Everywhere_All_at_Once.jpg",
+    tags: ["멀티버스", "기상천외", "가족애", "오스카작품상"],
+    recommendReason: "독창적인 상상력과 빵 터지는 유머 끝에 전해지는 뭉클한 위로!"
+  },
+  {
+    id: 13,
+    title: "엑시트",
+    englishTitle: "EXIT",
+    genre: "코미디",
+    year: 2019,
+    rating: 8.8,
+    runtime: "103분",
+    director: "이상근",
+    cast: "조정석, 임윤아, 고두심, 박인환",
+    summary: "몇 년째 취업 실패로 눈칫밥 먹던 용남과 동아리 후배 의주. 유독가스로 뒤덮인 도심 한복판에서 산악 동아리 시절 기른 클라이밍 실력으로 탈출을 감행한다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/b/b4/Exit_%282019_film%29.jpg",
+    tags: ["재난탈출", "조정석", "클라이밍", "꿀잼"],
+    recommendReason: "신선한 재난 탈출 코미디와 짠내 나지만 사랑스러운 현실 공감!"
+  },
+  {
+    id: 14,
+    title: "데드풀과 울버린",
+    englishTitle: "Deadpool & Wolverine",
+    genre: "코미디",
+    year: 2024,
+    rating: 8.6,
+    runtime: "128분",
+    director: "숀 레비",
+    cast: "라이언 레이놀즈, 휴 잭맨, 엠마 코린",
+    summary: "자신의 우주가 소멸할 위기에 처하자 다른 평행우주의 울버린을 찾아 나선 데드풀. 상극인 두 히어로가 티격태격하며 펼치는 유쾌하고 거침없는 R등급 히어로 코미디.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/4/4c/Deadpool_%26_Wolverine_poster.jpg",
+    tags: ["데드풀", "울버린", "티키타카", "R등급유머"],
+    recommendReason: "라이언 레이놀즈 특유의 쉴 틈 없는 드립과 울버린의 귀환!"
+  },
+  {
+    id: 15,
+    title: "트루먼 쇼",
+    englishTitle: "The Truman Show",
+    genre: "코미디",
+    year: 1998,
+    rating: 9.2,
+    runtime: "103분",
+    director: "피터 위어",
+    cast: "짐 캐리, 로라 리니, 에드 해리스",
+    summary: "자신의 30년 인생 전체가 24시간 전 세계에 생중계되는 거대한 TV 쇼라는 사실을 알게 된 트루먼. 가짜 세상을 탈출해 진짜 인생을 찾기 위한 용기 있는 항해.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/c/cd/Trumanshow.jpg",
+    tags: ["짐캐리", "철학적코미디", "자유", "인생영화"],
+    recommendReason: "짐 캐리의 명연기와 함께 진정한 자유의 의미를 묻는 명작 코미디!"
+  },
+  {
+    id: 16,
+    title: "그랜드 부다페스트 호텔",
+    englishTitle: "The Grand Budapest Hotel",
+    genre: "코미디",
+    year: 2014,
+    rating: 9.0,
+    runtime: "100분",
+    director: "웨스 앤더슨",
+    cast: "랄프 파인즈, 토니 레볼로리, 시얼샤 로넌",
+    summary: "세계 최고 호텔의 전설적인 지배인 구스타브와 로비보이 제로. 의문의 살인 사건과 막대한 유산을 둘러싸고 동화처럼 아기자기하게 펼쳐지는 환상적인 모험극.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/1/1c/The_Grand_Budapest_Hotel.png",
+    tags: ["웨스앤더슨", "미장센", "파스텔톤", "예술적"],
+    recommendReason: "눈이 황홀해지는 완벽한 색감과 위트 넘치는 독창적 스토리!"
+  },
+  {
+    id: 17,
+    title: "청년경찰",
+    englishTitle: "Midnight Runners",
+    genre: "코미디",
+    year: 2017,
+    rating: 8.5,
+    runtime: "109분",
+    director: "김주환",
+    cast: "박서준, 강하늘, 성동일, 박하선",
+    summary: "의욕 충만 기준과 이론 백단 희열, 두 경찰대생이 외출 중 우연히 납치 사건을 목격한다. 절차 대신 발로 뛰며 범인을 추적하는 청춘 콤비의 뜨거운 수사극.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/1/1b/Midnight_Runners.jpg",
+    tags: ["박서준", "강하늘", "브로맨스", "유쾌함"],
+    recommendReason: "박서준과 강하늘의 찰떡같은 케미와 청춘 에너지 가득한 수사 코미디!"
+  },
+  {
+    id: 18,
+    title: "백 투 더 퓨처",
+    englishTitle: "Back to the Future",
+    genre: "코미디",
+    year: 1985,
+    rating: 9.3,
+    runtime: "116분",
+    director: "로버트 저메키스",
+    cast: "마이클 J. 폭스, 크리스토퍼 로이드, 리 톰슨",
+    summary: "괴짜 과학자 브라운 박사가 발명한 드로리안 타임머신을 타고 30년 전 과거로 간 고교생 마티. 과거의 부모님을 맺어주고 미래로 돌아오기 위한 기상천외한 모험.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/d/d2/Back_to_the_Future.jpg",
+    tags: ["시간여행", "타임머신", "명작코미디", "레트로"],
+    recommendReason: "언제 봐도 가슴 설레고 재치 넘치는 SF 코미디의 바이블!"
+  },
+  {
+    id: 19,
+    title: "수상한 그녀",
+    englishTitle: "Miss Granny",
+    genre: "코미디",
+    year: 2014,
+    rating: 8.6,
+    runtime: "124분",
+    director: "황동혁",
+    cast: "심은경, 나문희, 박인환, 성동일",
+    summary: "칠순 할머니 오말순이 우연히 찾은 '청춘 사진관'에서 사진을 찍은 뒤 스무 살 꽃처녀 오두리로 돌아간다. 다시 찾은 젊음 속에서 펼치는 인생 반전 유쾌극.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/4/45/Miss_Granny_poster.jpg",
+    tags: ["회춘", "심은경", "가족감동", "노래"],
+    recommendReason: "배꼽 빠지는 심은경의 능청 연기와 마지막에 찾아오는 눈물 핑 도는 감동!"
+  },
+  {
+    id: 20,
+    title: "라라랜드",
+    englishTitle: "La La Land",
+    genre: "코미디",
+    year: 2016,
+    rating: 9.0,
+    runtime: "128분",
+    director: "데이미언 셔젤",
+    cast: "라이언 고슬링, 엠마 스톤, 존 레전드",
+    summary: "꿈을 꾸는 사람들을 위한 도시 LA. 재즈 피아니스트 세바스찬과 배우 지망생 미아가 만나 서로의 꿈을 응원하며 사랑에 빠져가는 마법 같은 로맨틱 뮤지컬 코미디.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/a/ab/La_La_Land_%28film%29.png",
+    tags: ["뮤지컬", "로맨스", "라이언고슬링", "황홀한음악"],
+    recommendReason: "화려한 탭댄스와 감미로운 음악, 인생과 사랑의 계절을 담은 수작!"
+  },
+
+  // [드라마] 10편
+  {
+    id: 21,
+    title: "기생충",
+    englishTitle: "Parasite",
+    genre: "드라마",
+    year: 2019,
+    rating: 9.3,
+    runtime: "132분",
+    director: "봉준호",
+    cast: "송강호, 이선균, 조여정, 최우식, 박소담",
+    summary: "전원 백수로 살아가던 기택 네 장남 기우가 박 사장네 고액 과외 면접을 보게 된다. 이를 계기로 걷잡을 수 없이 얽혀 들어가는 두 가족의 서글프고 기괴한 희비극.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/5/53/Parasite_%282019_film%29.png",
+    tags: ["칸황금종려상", "아카데미4관왕", "블랙코미디", "사회풍자"],
+    recommendReason: "전 세계를 매혹시킨 봉준호 감독의 천재적 연출과 흡입력 있는 스토리텔링!"
+  },
+  {
+    id: 22,
+    title: "오펜하이머",
+    englishTitle: "Oppenheimer",
+    genre: "드라마",
+    year: 2023,
+    rating: 8.9,
+    runtime: "180분",
+    director: "크리스토퍼 놀란",
+    cast: "킬리언 머피, 에밀리 블런트, 맷 데이먼, 로버트 다우니 주니어",
+    summary: "세상을 구원하기 위해 세상을 파괴할 열쇠를 쥐어야 했던 천재 물리학자 J. 로버트 오펜하이머의 고뇌와 맨해튼 프로젝트의 전말을 다룬 대서사극.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/4/4a/Oppenheimer_%28film%29.jpg",
+    tags: ["맨해튼프로젝트", "전기영화", "심리묘사", "걸작"],
+    recommendReason: "역사의 소용돌이 속 인간의 양심과 지성을 탐구하는 강렬한 시네마틱 체험!"
+  },
+  {
+    id: 23,
+    title: "쇼생크 탈출",
+    englishTitle: "The Shawshank Redemption",
+    genre: "드라마",
+    year: 1994,
+    rating: 9.5,
+    runtime: "142분",
+    director: "프랭크 다라본트",
+    cast: "팀 로빈스, 모건 프리먼, 밥 건튼",
+    summary: "아내 살해 누명을 쓰고 악명 높은 쇼생크 교도소에 수감된 앤디 듀프레인. 절망의 감옥 안에서도 결코 희망을 잃지 않고 자유를 향해 나아가는 위대한 여정.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/8/81/ShawshankRedemptionMoviePoster.jpg",
+    tags: ["희망", "탈출", "모건프리먼", "역대1위명작"],
+    recommendReason: "인생이 지치고 힘들 때 다시 일어설 용기와 희망을 건네는 불후의 명작!"
+  },
+  {
+    id: 24,
+    title: "포레스트 검프",
+    englishTitle: "Forrest Gump",
+    genre: "드라마",
+    year: 1994,
+    rating: 9.2,
+    runtime: "142분",
+    director: "로버트 저메키스",
+    cast: "톰 행크스, 로빈 라이트, 게리 시니즈",
+    summary: "조금은 불편한 몸과 순수한 마음을 지닌 포레스트 검프. 어머니의 따뜻한 사랑과 굳은 신념으로 미국의 격동기를 달리며 수많은 기적을 만들어낸다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/6/67/Forrest_Gump_poster.jpg",
+    tags: ["톰행크스", "순수함", "인생초콜릿", "힐링"],
+    recommendReason: "'인생은 한 상자의 초콜릿과 같다'는 따스한 위로와 깊은 감동!"
+  },
+  {
+    id: 25,
+    title: "그린 북",
+    englishTitle: "Green Book",
+    genre: "드라마",
+    year: 2018,
+    rating: 9.1,
+    runtime: "130분",
+    director: "피터 패럴리",
+    cast: "비고 모텐슨, 마허샬라 알리, 린다 카델리니",
+    summary: "1962년 미국, 다혈질 운전사 토니 발레롱가가 교양 넘치는 천재 흑인 피아니스트 돈 셜리 박사의 남부 투어 운전기사로 동행하며 인종의 벽을 허무는 특별한 우정 이야기.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/5/5b/Green_Book_%282018_poster%29.png",
+    tags: ["우정", "재즈피아노", "로드무비", "아카데미작품상"],
+    recommendReason: "서로 다른 두 남자가 빚어내는 따스한 온기와 웃음, 진정한 우정!"
+  },
+  {
+    id: 26,
+    title: "헤어질 결심",
+    englishTitle: "Decision to Leave",
+    genre: "드라마",
+    year: 2022,
+    rating: 8.9,
+    runtime: "138분",
+    director: "박찬욱",
+    cast: "박해일, 탕웨이, 이정현, 고경표",
+    summary: "산에서 벌어진 변사 사건을 수사하게 된 형사 해준이 사망자의 아내 서래를 만나고, 의심과 관심을 동시에 품으며 점점 빠져드는 미묘하고 매혹적인 로맨스 수사극.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/8/82/Decision_to_Leave_film_poster.jpg",
+    tags: ["박찬욱", "탕웨이", "미장센", "미결과붕괴"],
+    recommendReason: "여운이 가시지 않는 섬세한 대사와 박찬욱 감독 특유의 우아한 미장센!"
+  },
+  {
+    id: 27,
+    title: "죽은 시인의 사회",
+    englishTitle: "Dead Poets Society",
+    genre: "드라마",
+    year: 1989,
+    rating: 9.3,
+    runtime: "128분",
+    director: "피터 위어",
+    cast: "로빈 윌리엄스, 에단 호크, 로버트 숀 레너드",
+    summary: "엄격한 규율의 명문 기숙학교에 부임한 존 키팅 교사. 주입식 교육 대신 시와 문학을 통해 학생들에게 '카르페 디엠(현재를 즐겨라)'의 진정한 의미를 일깨워준다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/8/86/Dead_poets_society.png",
+    tags: ["카르페디엠", "로빈윌리엄스", "참된스승", "인생명작"],
+    recommendReason: "'오 캡틴, 마이 캡틴!' 책상 위로 올라선 학생들의 잊지 못할 명장면!"
+  },
+  {
+    id: 28,
+    title: "서울의 봄",
+    englishTitle: "12.12: The Day",
+    genre: "드라마",
+    year: 2023,
+    rating: 9.2,
+    runtime: "141분",
+    director: "김성수",
+    cast: "황정민, 정우성, 이성민, 박해준, 김성균",
+    summary: "1979년 12월 12일 수도 서울. 군사반란을 주도한 신군부 세력과 이에 맞서 수도를 지키려 했던 군인들의 숨 막히는 긴박했던 9시간의 현장을 다룬 웰메이드 역사극.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/f/fc/12.12-_The_Day.jpg",
+    tags: ["한국현대사", "천만영화", "황정민", "정우성"],
+    recommendReason: "1분 1초도 눈을 뗄 수 없는 압도적인 서스펜스와 배우들의 열연!"
+  },
+  {
+    id: 29,
+    title: "원더",
+    englishTitle: "Wonder",
+    genre: "드라마",
+    year: 2017,
+    rating: 9.1,
+    runtime: "113분",
+    director: "스티븐 크보스키",
+    cast: "제이콥 트렘블레이, 줄리아 로버츠, 오웬 윌슨",
+    summary: "선천적 안면기형으로 헬멧 속에 숨어 살던 소년 어기가 처음으로 일반 학교에 입학하며 벌어지는 이야기. 편견을 사랑과 친절로 이겨내는 감동적인 성장 드라마.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/6/67/Wonder_%28film%29.png",
+    tags: ["가족영화", "친절", "용기", "감동눈물"],
+    recommendReason: "온 가족이 함께 보며 마음이 따뜻해지는 최고의 힐링 가족 영화!"
+  },
+  {
+    id: 30,
+    title: "인생은 아름다워",
+    englishTitle: "Life Is Beautiful",
+    genre: "드라마",
+    year: 1997,
+    rating: 9.4,
+    runtime: "116분",
+    director: "로베르토 베니니",
+    cast: "로베르토 베니니, 니콜레타 브라스키, 조르지오 칸타리니",
+    summary: "제2차 세계대전 유대인 수용소의 비극 속에서도 어린 아들에게 수용소 생활이 거대한 '점수 따기 놀이'라고 속이며 끝까지 웃음과 동심을 지켜준 아버지의 눈물겨운 부성애.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/7/7c/Vitaebella.jpg",
+    tags: ["위대한부성애", "오스카남우주연상", "슬픈웃음", "불멸의명작"],
+    recommendReason: "가장 슬픈 순간에 가장 아름다운 사랑과 미소를 선물하는 명작!"
+  },
+
+  // [SF] 10편
+  {
+    id: 31,
+    title: "인터스텔라",
+    englishTitle: "Interstellar",
+    genre: "SF",
+    year: 2014,
+    rating: 9.1,
+    runtime: "169분",
+    director: "크리스토퍼 놀란",
+    cast: "매튜 맥커너히, 앤 해서웨이, 제시카 차스테인",
+    summary: "기후 변화로 인류 멸망의 위기에 처한 지구. 웜홀을 통과해 새로운 삶의 터전을 찾기 위해 시공간을 초월한 우주 탐사를 떠나는 우주 비행사들의 감동적인 여정.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg",
+    tags: ["우주", "감동", "시공간", "명작"],
+    recommendReason: "광활한 우주와 가슴 뭉클한 사랑의 힘을 동시에 느끼고 싶다면 최고의 선택!"
+  },
+  {
+    id: 32,
+    title: "듄: 파트 2",
+    englishTitle: "Dune: Part Two",
+    genre: "SF",
+    year: 2024,
+    rating: 9.0,
+    runtime: "166분",
+    director: "드니 빌뇌브",
+    cast: "티모시 샬라메, 젠데이아, 레베카 퍼거슨",
+    summary: "가문의 멸망 후 사막 행성 아라키스의 원주민 프레멘과 손잡은 폴 아트레이데스. 사랑과 복수, 그리고 피할 수 없는 예지몽 사이에서 메시아로서의 각성을 시작한다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/5/52/Dune_Part_Two_poster.jpeg",
+    tags: ["사막행성", "대서사시", "시각혁명", "웅장함"],
+    recommendReason: "스크린을 집어삼키는 장엄한 비주얼과 사운드, 블록버스터의 신기원!"
+  },
+  {
+    id: 33,
+    title: "인셉션",
+    englishTitle: "Inception",
+    genre: "SF",
+    year: 2010,
+    rating: 9.3,
+    runtime: "148분",
+    director: "크리스토퍼 놀란",
+    cast: "레오나르도 디카프리오, 조셉 고든 레빗, 마리옹 꼬띠아르",
+    summary: "타인의 꿈에 들어가 생각을 훔치는 특수 요원 코브. 생각을 훔치는 대신 생각을 심어야 하는 불가능한 작전 '인셉션'을 위해 다층의 꿈속으로 침투한다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/2/2e/Inception_%282010%29_theatrical_poster.jpg",
+    tags: ["꿈속의꿈", "디카프리오", "지능형SF", "토템"],
+    recommendReason: "치밀한 각본과 회전하는 복도 액션 등 영화적 상상력의 절정!"
+  },
+  {
+    id: 34,
+    title: "아바타: 물의 길",
+    englishTitle: "Avatar: The Way of Water",
+    genre: "SF",
+    year: 2022,
+    rating: 8.8,
+    runtime: "192분",
+    director: "제임스 카메론",
+    cast: "샘 워싱턴, 조 샐다나, 시고니 위버",
+    summary: "판도라 행성에서 가정을 이룬 제이크 설리와 네이티리. 새로운 위협이 닥치자 바다 부족 멧케이나를 찾아가 바다 생태계와 교감하며 가족을 지키기 위한 전투를 펼친다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/5/54/Avatar_The_Way_of_Water_poster.jpg",
+    tags: ["3D시각혁명", "판도라행성", "수중생태계", "제임스카메론"],
+    recommendReason: "실제 판도라의 바다에 빠져든 것 같은 황홀한 시각적 카타르시스!"
+  },
+  {
+    id: 35,
+    title: "매트릭스",
+    englishTitle: "The Matrix",
+    genre: "SF",
+    year: 1999,
+    rating: 9.3,
+    runtime: "136분",
+    director: "워쇼스키 자매",
+    cast: "키아누 리브스, 로렌스 피시번, 캐리 앤 모스",
+    summary: "인간이 인공지능에 의해 사육되며 가상현실 '매트릭스'를 진짜 현실로 믿고 살아가는 세계. 구원자 네오가 빨간 약을 삼키고 현실의 인류 해방을 위해 나선다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/d/db/The_Matrix.png",
+    tags: ["빨간약", "불릿타임", "네오", "SF철학의정점"],
+    recommendReason: "총알을 피하는 불릿 타임과 사이버펑크 세계관의 영원한 전설!"
+  },
+  {
+    id: 36,
+    title: "그래비티",
+    englishTitle: "Gravity",
+    genre: "SF",
+    year: 2013,
+    rating: 9.0,
+    runtime: "91분",
+    director: "알폰소 쿠아론",
+    cast: "산드라 블록, 조지 클루니",
+    summary: "지구 상공 600km 우주 정거장 허블 우주망원경 수리 중 파편 연쇄 폭발로 우주 미아가 된 스톤 박사. 소리도 산소도 없는 암흑 속에서 오직 생존을 위해 발버둥친다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/f/f6/Gravity_Poster.jpg",
+    tags: ["우주미아", "숨막히는체험", "산드라블록", "생존본능"],
+    recommendReason: "우주에 홀로 남겨진 듯한 극도의 몰입감과 삶을 향한 경이로운 의지!"
+  },
+  {
+    id: 37,
+    title: "마션",
+    englishTitle: "The Martian",
+    genre: "SF",
+    year: 2015,
+    rating: 8.9,
+    runtime: "144분",
+    director: "리들리 스콧",
+    cast: "맷 데이먼, 제시카 차스테인, 크리스틴 위그",
+    summary: "화성 탐사 중 모래폭풍에 휘말려 홀로 버려진 식물학자 마크 와트니. 남은 식량과 과학 지식을 총동원해 감자를 재배하며 기적 같은 지구 귀환을 준비한다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/c/cd/The_Martian_film_poster.jpg",
+    tags: ["화성생존", "감자키우기", "긍정의힘", "맷데이먼"],
+    recommendReason: "절망적인 상황도 유쾌한 과학 지식과 긍정으로 돌파하는 최고의 웰메이드 SF!"
+  },
+  {
+    id: 38,
+    title: "블레이드 러너 2049",
+    englishTitle: "Blade Runner 2049",
+    genre: "SF",
+    year: 2017,
+    rating: 8.8,
+    runtime: "163분",
+    director: "드니 빌뇌브",
+    cast: "라이언 고슬링, 해리슨 포드, 아나 데 아르마스",
+    summary: "인간과 복제인간 리플리컨트가 공존하는 2049년. 통제를 벗어난 복제인간을 처형하는 블레이드 러너 'K'가 사회의 붕괴를 초래할 거대한 비밀을 발견하고 과거의 블레이드 러너 데커드를 찾아 나선다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/9/9b/Blade_Runner_2049_poster.png",
+    tags: ["사이버펑크", "디스토피아", "황홀한미장센", "인간이란무엇인가"],
+    recommendReason: "숨이 멎을 듯한 비주얼과 철학적 깊이를 담아낸 사이버펑크의 정수!"
+  },
+  {
+    id: 39,
+    title: "컨택트",
+    englishTitle: "Arrival",
+    genre: "SF",
+    year: 2016,
+    rating: 8.9,
+    runtime: "116분",
+    director: "드니 빌뇌브",
+    cast: "에이미 아담스, 제레미 레너, 포레스트 휘태커",
+    summary: "어느 날 전 세계 12개 도시에 정체불명의 거대한 외계 쉘이 착륙한다. 언어학자 루이스 뱅크스 교수가 그들의 독특한 원형 문자를 해독하며 시간과 삶의 의미를 깨달아간다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/d/df/Arrival%2C_Movie_Poster.jpg",
+    tags: ["외계인소통", "언어학", "시공간", "지적전율"],
+    recommendReason: "화려한 전투 대신 지적인 소통과 가슴 먹먹한 사랑으로 다가오는 지적 SF!"
+  },
+  {
+    id: 40,
+    title: "엣지 오브 투모로우",
+    englishTitle: "Edge of Tomorrow",
+    genre: "SF",
+    year: 2014,
+    rating: 8.9,
+    runtime: "113분",
+    director: "더그 라이만",
+    cast: "톰 크루즈, 에밀리 블런트, 빌 팩스톤",
+    summary: "외계 종족과의 전장에 강제 차출된 공보장교 빌 케이지. 외계인과의 접촉으로 죽으면 같은 날 아침으로 되살아나는 무한 타임루프에 갇히며 점차 최고의 전사로 각성한다.",
+    poster: "https://upload.wikimedia.org/wikipedia/en/f/f9/Edge_of_Tomorrow_Poster.jpg",
+    tags: ["타임루프", "톰크루즈", "외계인전쟁", "쾌감"],
+    recommendReason: "죽을 때마다 레벨업하는 흥미진진한 전개와 에밀리 블런트의 걸크러시 액션!"
+  }
+];
+
+const GENRES = ["전체", "액션", "코미디", "드라마", "SF"];
+
+const GENRE_STYLES = {
+  전체: {
+    badge: "bg-slate-100 text-slate-700 border-slate-200",
+    activeTab: "from-[#00c4cc] via-[#5b40e7] to-[#7d2ae8] text-white shadow-lg",
+  },
+  액션: {
+    badge: "bg-[#fff0f4] text-[#ff4f79] border-[#ff4f79]/30",
+    activeTab: "from-[#ff6b6b] to-[#ff4f79] text-white shadow-lg",
+  },
+  코미디: {
+    badge: "bg-[#fff8e6] text-[#b47a00] border-[#ffb800]/30",
+    activeTab: "from-[#ffb800] to-[#ff8400] text-white shadow-lg",
+  },
+  드라마: {
+    badge: "bg-[#f3ebff] text-[#7d2ae8] border-[#7d2ae8]/30",
+    activeTab: "from-[#7d2ae8] to-[#9d4edd] text-white shadow-lg",
+  },
+  SF: {
+    badge: "bg-[#e6fafb] text-[#009da3] border-[#00c4cc]/30",
+    activeTab: "from-[#00c4cc] to-[#0e70ed] text-white shadow-lg",
+  },
+};
+
+export default function App() {
+  const [movies] = useState(INITIAL_MOVIES);
+  const [selectedGenre, setSelectedGenre] = useState("전체");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("rating");
+  const [likedMovieIds, setLikedMovieIds] = useState(new Set([1, 11, 21, 31]));
+
+  const [activeModalMovie, setActiveModalMovie] = useState(null);
+  const [isRandomPickModal, setIsRandomPickModal] = useState(false);
+  const [isShuffling, setIsShuffling] = useState(false);
+  const [shufflingMovie, setShufflingMovie] = useState(null);
+
+  const genreCounts = useMemo(() => {
+    const counts = { 전체: movies.length };
+    movies.forEach((m) => {
+      counts[m.genre] = (counts[m.genre] || 0) + 1;
+    });
+    return counts;
+  }, [movies]);
+
+  const filteredMovies = useMemo(() => {
+    return movies
+      .filter((movie) => {
+        const matchesGenre = selectedGenre === "전체" || movie.genre === selectedGenre;
+        const matchesSearch =
+          movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          movie.englishTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          movie.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          movie.director.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesGenre && matchesSearch;
+      })
+      .sort((a, b) => {
+        if (sortBy === "rating") return b.rating - a.rating;
+        if (sortBy === "year") return b.year - a.year;
+        if (sortBy === "title") return a.title.localeCompare(b.title);
+        return 0;
+      });
+  }, [movies, selectedGenre, searchQuery, sortBy]);
+
+  const toggleLike = (id, e) => {
+    if (e) e.stopPropagation();
+    setLikedMovieIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const triggerRandomRecommendation = () => {
+    setIsShuffling(true);
+    setActiveModalMovie(null);
+    setIsRandomPickModal(true);
+
+    const candidates =
+      selectedGenre === "전체"
+        ? movies
+        : movies.filter((m) => m.genre === selectedGenre);
+
+    const pool = candidates.length > 0 ? candidates : movies;
+
+    let counter = 0;
+    const totalFlips = 14;
+    const intervalTime = 85;
+
+    const interval = setInterval(() => {
+      const randomIndex = Math.floor(Math.random() * pool.length);
+      setShufflingMovie(pool[randomIndex]);
+      counter++;
+
+      if (counter >= totalFlips) {
+        clearInterval(interval);
+        const finalMovie = pool[Math.floor(Math.random() * pool.length)];
+        setShufflingMovie(finalMovie);
+        setActiveModalMovie(finalMovie);
+        setIsShuffling(false);
+      }
+    }, intervalTime);
+  };
+
+  const closeModal = () => {
+    setActiveModalMovie(null);
+    setIsRandomPickModal(false);
+    setIsShuffling(false);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") closeModal();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  return (
+    <div className="relative min-h-screen pb-24 overflow-x-hidden bg-[#f8fafd] text-slate-800 font-sans">
+      {/* Background Blurs */}
+      <div className="fixed top-0 left-1/4 -translate-x-1/2 w-[600px] h-[400px] bg-[#00c4cc]/15 rounded-full blur-[120px] pointer-events-none -z-10" />
+      <div className="fixed top-20 right-1/4 translate-x-1/2 w-[600px] h-[400px] bg-[#7d2ae8]/15 rounded-full blur-[130px] pointer-events-none -z-10" />
+
+      {/* Header */}
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/85 border-b border-slate-200/80 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <div
+            className="flex items-center gap-3.5 cursor-pointer"
+            onClick={() => {
+              setSelectedGenre("전체");
+              setSearchQuery("");
+            }}
+          >
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#00c4cc] via-[#5b40e7] to-[#7d2ae8] flex items-center justify-center shadow-lg shadow-purple-500/25">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+              </svg>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-black tracking-tight bg-gradient-to-r from-[#00c4cc] via-[#5b40e7] to-[#7d2ae8] bg-clip-text text-transparent">
+                  CinePick
+                </span>
+                <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-gradient-to-r from-[#00c4cc]/15 to-[#7d2ae8]/15 text-[#7d2ae8] border border-[#7d2ae8]/20">
+                  OFFICIAL POSTERS
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 font-medium hidden sm:block">
+                장르별 10편씩 총 40편의 공식 오리지널 포스터 수록
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={triggerRandomRecommendation}
+            className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-[#00c4cc] via-[#5b40e7] to-[#7d2ae8] hover:opacity-95 shadow-md shadow-purple-500/30 hover:scale-[1.03] active:scale-95 transition-all"
+          >
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-yellow-300"></span>
+            </span>
+            <span>오늘의 랜덤 영화 추천</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="relative pt-12 pb-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-purple-200/80 text-xs font-bold text-[#7d2ae8] mb-5 shadow-sm">
+          <span className="flex h-2 w-2 rounded-full bg-[#00c4cc] animate-pulse"></span>
+          40편 전편 공식 극장 개봉 포스터 100% 적용 완료
+        </div>
+        <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 max-w-3xl mx-auto leading-tight sm:leading-snug">
+          오늘 당신의 기분을 채워줄 <br className="hidden sm:inline" />
+          <span className="bg-gradient-to-r from-[#00c4cc] via-[#7d2ae8] to-[#ff4f79] bg-clip-text text-transparent">
+            취향 저격 인생 영화
+          </span>
+          를 골라보세요
+        </h1>
+        <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto font-medium">
+          실제 공식 포스터로 생생하게 즐기는 40편의 명작 큐레이션
+        </p>
+      </section>
+
+      {/* Controls */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2 mb-8">
+        <div className="bg-white/90 border border-slate-200/90 rounded-3xl p-4 sm:p-5 backdrop-blur-md shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+            {GENRES.map((genre) => {
+              const isActive = selectedGenre === genre;
+              const count = genreCounts[genre] || 0;
+              const style = GENRE_STYLES[genre] || GENRE_STYLES["전체"];
+              return (
+                <button
+                  key={genre}
+                  onClick={() => setSelectedGenre(genre)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold transition-all whitespace-nowrap ${
+                    isActive
+                      ? `bg-gradient-to-r ${style.activeTab}`
+                      : "text-slate-600 hover:text-slate-900 bg-slate-50 border border-slate-200/60"
+                  }`}
+                >
+                  <span>{genre}</span>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full font-black ${
+                      isActive ? "bg-white/25 text-white" : "bg-white text-slate-500 border border-slate-200"
+                    }`}
+                  >
+                    {count}편
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="제목, 감독, 줄거리 검색..."
+              className="w-full md:w-64 bg-slate-50 border border-slate-200 focus:border-[#7d2ae8] rounded-2xl px-4 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
+            />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-slate-50 border border-slate-200 text-slate-700 text-sm font-semibold rounded-2xl px-3 py-2 focus:border-[#7d2ae8] focus:outline-none"
+            >
+              <option value="rating">평점 높은순</option>
+              <option value="year">최신 개봉순</option>
+              <option value="title">가나다순</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      {/* Grid */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            {selectedGenre} 영화 목록 ({filteredMovies.length}개)
+          </h2>
+          {selectedGenre !== "전체" && (
+            <button
+              onClick={() => setSelectedGenre("전체")}
+              className="text-xs font-bold text-[#00c4cc] hover:text-[#009da3]"
+            >
+              ← 전체 40편 보기
+            </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-7">
+          {filteredMovies.map((movie) => {
+            const isLiked = likedMovieIds.has(movie.id);
+            const genreStyle = GENRE_STYLES[movie.genre] || GENRE_STYLES["전체"];
+            return (
+              <article
+                key={movie.id}
+                onClick={() => {
+                  setActiveModalMovie(movie);
+                  setIsRandomPickModal(false);
+                }}
+                className="group bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col cursor-pointer"
+              >
+                <div className="relative aspect-[2/3] w-full overflow-hidden bg-slate-100">
+                  <img
+                    src={movie.poster}
+                    alt={movie.title}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10">
+                    <span className={`px-2.5 py-1 rounded-xl text-xs font-black border ${genreStyle.badge}`}>
+                      {movie.genre}
+                    </span>
+                    <span className="px-2 py-1 rounded-xl text-xs font-bold bg-white/80 text-slate-700 shadow-sm">
+                      {movie.year}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={(e) => toggleLike(movie.id, e)}
+                    className="absolute top-3 right-3 z-10 p-2 rounded-xl bg-white/90 shadow-md text-slate-400 hover:text-[#ff4f79]"
+                  >
+                    <svg
+                      className={`w-5 h-5 ${isLiked ? "fill-[#ff4f79] text-[#ff4f79]" : "currentColor"}`}
+                      viewBox="0 0 24 24"
+                      fill={isLiked ? "currentColor" : "none"}
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  </button>
+
+                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs z-10">
+                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white/95 text-slate-800 font-bold shadow-md">
+                      ⭐ {movie.rating.toFixed(1)}
+                    </div>
+                    <span className="text-white text-xs font-semibold bg-black/50 px-2 py-1 rounded-xl">
+                      {movie.runtime}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-5 flex-1 flex flex-col justify-between bg-white">
+                  <div>
+                    <h3 className="text-lg font-black text-slate-900 group-hover:text-[#7d2ae8] transition-colors line-clamp-1 mb-1">
+                      {movie.title}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium mb-3 line-clamp-1">
+                      {movie.englishTitle} · {movie.director}
+                    </p>
+                    <p className="text-sm text-slate-600 leading-relaxed line-clamp-2">
+                      {movie.summary}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between">
+                    <div className="flex flex-wrap gap-1">
+                      {movie.tags.slice(0, 2).map((tag, idx) => (
+                        <span key={idx} className="text-[11px] font-semibold text-[#7d2ae8] bg-purple-50 px-2 py-0.5 rounded-lg">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                    <span className="text-xs font-bold text-[#00c4cc] group-hover:text-[#7d2ae8] inline-flex items-center gap-1">
+                      자세히 →
+                    </span>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </main>
+
+      {/* Shuffling Modal */}
+      {isShuffling && shufflingMovie && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
+            <h3 className="text-xl font-black text-slate-900 mb-1">오늘의 영화를 고르는 중!</h3>
+            <p className="text-xs text-[#7d2ae8] font-bold mb-5">총 40편 중 최적의 작품을 추첨 중입니다</p>
+            <div className="aspect-[3/4] w-48 mx-auto rounded-2xl overflow-hidden border-2 border-[#7d2ae8] shadow-md mb-4 bg-slate-100">
+              <img src={shufflingMovie.poster} alt={shufflingMovie.title} referrerPolicy="no-referrer" className="w-full h-full object-cover object-top" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Detail / Recommendation Modal */}
+      {activeModalMovie && !isShuffling && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-md" onClick={closeModal}>
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <button onClick={closeModal} className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-white text-slate-600 shadow-md">✕</button>
+
+            {isRandomPickModal && (
+              <div className="bg-gradient-to-r from-[#00c4cc] via-[#5b40e7] to-[#7d2ae8] px-6 py-3.5 flex items-center justify-between text-white font-black">
+                <span>🎉 오늘 당신을 위한 캔바 픽 추천 영화!</span>
+                <span className="text-xs bg-white/20 px-2.5 py-0.5 rounded-full">추천도 99%</span>
+              </div>
+            )}
+
+            <div className="p-6 sm:p-8 flex flex-col md:flex-row gap-6">
+              <div className="w-full md:w-5/12 flex-shrink-0">
+                <img src={activeModalMovie.poster} alt={activeModalMovie.title} referrerPolicy="no-referrer" className="w-full rounded-2xl shadow-md object-cover" />
+              </div>
+              <div className="flex-1 flex flex-col justify-between">
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mb-1">{activeModalMovie.title}</h2>
+                  <p className="text-xs text-slate-500 mb-4">{activeModalMovie.englishTitle}</p>
+                  {isRandomPickModal && (
+                    <div className="mb-4 p-3 rounded-xl bg-purple-50 text-xs text-slate-800 border border-purple-200">
+                      <strong>💡 큐레이터 한줄평:</strong> {activeModalMovie.recommendReason}
+                    </div>
+                  )}
+                  <p className="text-sm text-slate-600 leading-relaxed mb-4">{activeModalMovie.summary}</p>
+                  <p className="text-xs text-slate-500"><strong>감독:</strong> {activeModalMovie.director} | <strong>출연:</strong> {activeModalMovie.cast}</p>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <button onClick={(e) => toggleLike(activeModalMovie.id, e)} className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-200">
+                    {likedMovieIds.has(activeModalMovie.id) ? "❤️ 찜한 영화" : "🤍 위시리스트"}
+                  </button>
+                  {isRandomPickModal ? (
+                    <div className="flex gap-2">
+                      <button onClick={triggerRandomRecommendation} className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100">🎲 다시 뽑기</button>
+                      <button onClick={closeModal} className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#00c4cc] to-[#7d2ae8]">이 영화로 결정!</button>
+                    </div>
+                  ) : (
+                    <button onClick={closeModal} className="px-5 py-2 rounded-xl text-xs font-bold bg-slate-100">닫기</button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
