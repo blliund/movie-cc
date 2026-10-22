@@ -4,6 +4,13 @@ React와 Tailwind CSS를 활용해 캔바(Canva) 특유의 산뜻한 틸-퍼플 
 
 ---
 
+## 🌐 배포 및 저장소 링크
+
+- **🚀 Vercel 라이브 배포 주소**: [https://movie-cc-zeta.vercel.app](https://movie-cc-zeta.vercel.app)
+- **📦 GitHub 저장소**: [https://github.com/blliund/movie-cc](https://github.com/blliund/movie-cc)
+
+---
+
 ## 🖼️ 주요 특징
 
 1. **40편 전편 실제 공식 영화 포스터 적용 (장르별 10편)**
@@ -23,10 +30,3 @@ React와 Tailwind CSS를 활용해 캔바(Canva) 특유의 산뜻한 틸-퍼플 
 3. **오늘의 랜덤 영화 추천 (셔플링 룰렛 인터랙션)**
    - 1.2초간 카드가 빠르게 돌아가는 셔플링 룰렛 애니메이션 후 당첨 영화 발표
    - 큐레이터 추천 한줄평 + "🎲 다시 뽑기" 기능 지원
-
----
-
-## 🚀 확인 방법
-
-- **브라우저 직접 열기**: `d:\오현빈\12_UI제작\movie-cc\index.html` 파일을 더블 클릭하여 크롬이나 엣지로 바로 확인
-- **로컬 서버**: `http://localhost:3000` 접속 (서버 실행 중)
